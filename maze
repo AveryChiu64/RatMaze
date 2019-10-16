@@ -160,5 +160,3 @@ paths.push("");
 	system("PAUSE");
 	return 0;
 }//end of main
-
-};
