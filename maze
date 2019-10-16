@@ -1,0 +1,176 @@
+#include <iostream>
+#include <cmath>
+#include <cstdlib>
+#include <fstream>
+#include <queue>
+//NOTE: I would probably add a counter to stop at some point, I can't think
+//of a better way to end the program, it should not take more than 150
+//tries to find it in a 8 by 12 maze tbh
+
+using namespace std;
+
+
+string setShortest(string shortest);
+string getShortest();
+
+bool check(string move,int startX,int startY, char maze[8][12]){
+	int afterX=startX,afterY=startY;
+	for(int i=0;i<move.length();i++){
+		if(move[i]=='U')
+		afterY--;
+		else if(move[i]=='D')
+		afterY++;
+		else if(move[i]=='L')
+		afterX--;
+		else
+		afterX++;
+	}
+	//make sure it is in the bounds of the maze 
+	return afterX >= 0 && afterX < 12 && afterY >= 0 && afterY < 8 &&
+	maze[afterY][afterX]!='B';
+}
+bool foundEnd(string move,int startX,int startY, char maze[8][12],char end){
+	int afterX=startX,afterY=startY;
+	for(int i=0;i<move.length();i++){
+		if(move[i]=='U')
+		afterY--;
+		else if(move[i]=='D')
+		afterY++;
+		else if(move[i]=='L')
+		afterX--;
+		else
+		afterX++;
+	}
+	if(maze[afterY][afterX]==end)
+	cout << move << endl;
+	return maze[afterY][afterX]==end;
+}//check if we have reached the end of the maze
+
+void printEnd(string move,int startX,int startY, char maze[8][12],char end){
+	int afterX=startX,afterY=startY;
+	for(int i=0;i<move.length();i++){
+		if(move[i]=='U')
+		afterY--;
+		else if(move[i]=='D')
+		afterY++;
+		else if(move[i]=='L')
+		afterX--;
+		else
+		afterX++;
+		
+		maze[afterY][afterX]='#';//where P represents the pathway to exit
+	}
+	
+	for(int i=0;i<8;i++){
+		for(int j=0;j<12;j++) {
+			cout << maze[i][j];
+		}
+		cout << endl;
+	}
+	
+}//end of printEnd function
+
+bool searchUntilEnd(int counter, queue<string> &paths, int startX, 
+int startY, char maze[8][12],char end) {
+	//counts the number of checks and stops one it is past 300
+	counter++;
+	//finds the previous string of pathways eg LLLL
+	string moveCheck="";
+	moveCheck=paths.front();
+	paths.pop();
+	//possible pathways
+	//u is up
+	//d is down
+	//l is left
+	//r is right 
+	char dir[4]= {'U','D','L','R'};
+	//goes through each direction in the loop and puts it into queue
+	for(int checks=0;checks<4;checks++){
+		//checks what the next move would look like
+		//as a string (eg LL) 
+		string move=moveCheck+dir[checks];
+		//checks if it is valid before pushing it into the queue
+		if(check(move,startX,startY, maze))
+		paths.push(move);
+		//returns the pathway if the end is found 
+		if(foundEnd(move,startX,startY, maze, end)) {
+			printEnd(move,startX,startY,maze,end);
+		//NOW SET THE SHORTEST PATH HERE BY CALLING THE OTHER CLASS 
+		//TO STORE THE SHORTEST PATH
+		//OUTPUT THIS PATH
+		return true;
+	}
+		if(counter>500)
+		return false;
+		
+		}
+		return	searchUntilEnd(counter, paths, startX, startY, maze, end);
+		//will return false if nothing can be found
+		
+	}
+
+int main() {
+	
+	//Variables
+	char maze[8][12], maze2[8][12];
+	int xStart=0, yStart=0, countSteps=0, xCheese=0,yCheese=0,counter=0;
+	bool foundCheese=0, foundExit=0;
+	
+	//take in file
+	ifstream fin("maze.txt");
+	//check file open
+	if(!fin) 
+		return -1;
+	//take in a 2D array maze and print it 
+	for(int i=0;i<8;i++){
+		for(int j=0;j<12;j++) {
+			fin >> maze[i][j];
+			maze2[i][j]=maze[i][j]; //copy of maze
+			cout << maze[i][j];
+			if(maze[i][j]=='R') { //find starting x and y coords
+			xStart=j;
+			yStart=i;
+		}
+			if(maze[i][j]=='C') {
+				xCheese=j;
+				yCheese=i;
+			}
+		}
+		cout << endl;
+}
+cout << endl;
+queue<string> paths;
+paths.push("");
+	if(searchUntilEnd(counter,paths, xStart, yStart, maze, 'C')) {
+	cout <<"Path found for cheese" << endl;
+	counter=0;
+	if(searchUntilEnd(counter,paths, xCheese, yCheese, maze2, 'X')) 
+	cout <<"Path found from start to cheese to exit" << endl;
+
+}
+	else if(searchUntilEnd(counter,paths, xStart, yStart, maze, 'X')) {
+	cout <<"Path found from start to exit, but not cheese" << endl;
+}
+	else
+	cout <<"There is no path or cheese" << endl;
+	
+	system("PAUSE");
+	return 0;
+}//end of main
+
+
+//create a new class for the good path  
+class shortestPath{
+private:
+	string shortest;
+		
+void setShortest(string shortest) {
+	this -> shortest=shortest;
+}
+
+string getShortest() {
+	return shortest;
+}
+
+
+};
